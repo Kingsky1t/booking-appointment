@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../Auth/firebase";
-import { addDoc, collection, deleteDoc, doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import { collection, deleteDoc, doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const Admin = () => {
-    const navigate = useNavigate();
+    const location = useLocation()
     const approvalCollectionRef = collection(db, "approval");
     const teacherCollectionRef = collection(db, "teacher");
     const studentCollectionRef = collection(db, "student");
@@ -30,17 +30,18 @@ export const Admin = () => {
     }, []);
 
     const handleApprove = async (item) => {
+        console.log(item)
         deleteApproval(item.uid);
         changeUserRole(item.uid, item.role);
         if (item.role === "teacher") {
             try {
-                await setDoc(doc(teacherCollectionRef, item.uid), { name: item.name });
+                await setDoc(doc(teacherCollectionRef, item.uid), { name: item.name, email: item.email });
             } catch (err) {
                 console.log(err);
             }
         } else if (item.role === "student") {
             try {
-                await setDoc(doc(studentCollectionRef, item.uid), { name: item.name });
+                await setDoc(doc(studentCollectionRef, item.uid), { name: item.name, email: item.email });
             } catch (err) {
                 console.error(err);
             }

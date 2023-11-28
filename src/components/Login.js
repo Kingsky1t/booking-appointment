@@ -49,13 +49,13 @@ export const Login = () => {
     const roleNavigate = async (uid) => {
         const user = (await getDoc(doc(userCollectionRef, uid))).data();
         if (user.role === "admin") {
-            navigate("/admin");
+            navigate("/admin", { state: uid });
         } else if (user.role === "teacher") {
-            navigate("/teacher");
+            navigate("/teacher", { state: uid });
         } else if (user.role === "student") {
-            navigate("/student");
+            navigate("/student", { state: uid });
         } else {
-            navigate("/home");
+            navigate("/approval", { state: uid });
         }
     };
 
