@@ -3,15 +3,16 @@ import { db } from "../Auth/firebase";
 import { collection, deleteDoc, doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import { useLocation, useNavigate } from "react-router-dom";
 import { HandleTeacher } from "./HandleTeacher";
-
+import "../assets/css/Admin.css";
+import { Logout } from "./Logout";
+import { TeacherList } from "./TeacherList";
 export const Admin = () => {
-    const location = useLocation();
     const approvalCollectionRef = collection(db, "approval");
-    // const teacherCollectionRef = collection(db, "teacher");
     const studentCollectionRef = collection(db, "student");
     const userCollectionRef = collection(db, "users");
 
     const [approvals, setApprovals] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
 
     const getApprovalList = async () => {
         try {
@@ -29,11 +30,11 @@ export const Admin = () => {
     useEffect(() => {
         getApprovalList();
     }, []);
-    console.log(approvals)
+
     const handleApprove = async (item) => {
         try {
             deleteApproval(item.uid);
-            changeUserRole(item.uid, 'student');
+            changeUserRole(item.uid, "student");
             await setDoc(doc(studentCollectionRef, item.uid), {
                 name: item.name,
                 email: item.email,
@@ -61,31 +62,51 @@ export const Admin = () => {
     };
 
     return (
-        <div>
-            <div>
-                <h2>Approval pending...</h2>
+        <>
+            <nav>
                 <ul>
-                    {approvals.map((item, idx) => (
-                        <li key={idx}>
-                            <p>Name: {item.name}</p>
-                            <button
-                                onClick={() => {
-                                    handleApprove(item);
-                                }}>
-                                Approve
-                            </button>
-                            <button
-                                onClick={() => {
-                                    deleteApproval(item.uid);
-                                }}>
-                                Decline
-                            </button>
-                        </li>
-                    ))}
+                    <li
+                        onClick={() => {
+                            setIsOpen((prev) => !prev);
+                        }}>
+                        Add Teacher
+                    </li>
+                    <li>
+                        <Logout />
+                    </li>
                 </ul>
-            </div>
+            </nav>
+            <div className='admin-container'>
+                <div>
+                    <h2>Approval pending...</h2>
+                    <ul>
+                        {approvals.map((item, idx) => (
+                            <li key={idx}>
+                                <p>Name: {item.name}</p>
+                                <button
+                                    onClick={() => {
+                                        handleApprove(item);
+                                    }}>
+                                    Approve
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        deleteApproval(item.uid);
+                                    }}>
+                                    Decline
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
 
-            <HandleTeacher />
-        </div>
+                <TeacherList />
+                {isOpen && (
+                    <div className='add-teacher-modal'>
+                        <HandleTeacher />
+                    </div>
+                )}
+            </div>
+        </>
     );
 };

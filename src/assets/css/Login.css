@@ -1,6 +1,58 @@
-.login-portal {
+.login-container {
+    width: 100vw;
+    height: 98vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
+
+.login-error {
+    margin:1rem;
+    color: #e18b6b;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+    width: 25%;
+}
+
+.login-form label {
+    text-align: left;
+    align-self: flex-start;
+    font-size: 1.3rem;
+}
+
+.login-form button {
+    width: 80%;
+    padding: 0.5rem 1rem ;
+    outline: none;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+}
+.login-form button:hover {
+    background-color: var(--highlight-color);
+
+}
+
+.login-text {
+    margin: 1rem;
+}
+
+.login-container .login-text p{
+    display: inline;
+}
+.login-container .login-text span{
+    margin-inline: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease-in;
+}
+.login-container .login-text span:hover {
+    color: #e18b6b;
+    text-decoration: underline;
+}
+

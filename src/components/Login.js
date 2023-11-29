@@ -1,9 +1,9 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
-import { auth, db } from "../Auth/firebase";
-import "../assets/css/Login.css";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { auth, db } from "../Auth/firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import "../assets/css/Login.css";
 
 export const Login = () => {
     const navigate = useNavigate();
@@ -13,6 +13,7 @@ export const Login = () => {
     const [password, setPassword] = useState("");
 
     const [isUserRegistered, setIsUserRegistered] = useState(true);
+    const [error, setError] = useState("");
 
     const addToUserDb = async (uid, email) => {
         await setDoc(doc(userCollectionRef, uid), {
@@ -21,20 +22,15 @@ export const Login = () => {
         });
     };
 
-    // get data from users db and check role and navigate accordingly
     const roleNavigate = async (uid) => {
         try {
             const userDoc = await getDoc(doc(userCollectionRef, uid));
             const user = userDoc.data();
-            console.log(userDoc)
+            console.log(userDoc);
             if (!user) {
-                console.log("User document does not exist.");
-                // navigate('/error');
-                return;
+                navigate("/error", { state: "User document does not exist." });
             }
-
             const { role } = user;
-
             if (role === "admin") {
                 navigate("/admin", { state: uid });
             } else if (role === "teacher") {
@@ -45,8 +41,7 @@ export const Login = () => {
                 navigate("/approval", { state: uid });
             }
         } catch (error) {
-            console.error("Error fetching user data:", error.message);
-            //   navigate('/error');
+            navigate("/error", { state: "Error fetching user data:" + error.message });
         }
     };
 
@@ -54,9 +49,8 @@ export const Login = () => {
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, password);
             addToUserDb(cred.user.uid, cred.user.email);
-            // console.log(cred)
         } catch (err) {
-            console.log(err.code);
+            setError(err.code);
         } finally {
             setEmail("");
             setPassword("");
@@ -71,13 +65,14 @@ export const Login = () => {
             const cred = await signInWithEmailAndPassword(auth, email, password);
             roleNavigate(cred.user.uid);
         } catch (err) {
-            console.error(err.code);
+            setError(err.code);
         }
     };
 
     return (
-        <>
-            <div className='login-portal' id='register_user'>
+        <div className='login-container'>
+            <div className='login-error'>{error}</div>
+            <div className='login-form' id='register_user'>
                 <label htmlFor=''>Email:</label>
                 <input
                     type='email'
@@ -105,11 +100,19 @@ export const Login = () => {
                 )}
             </div>
 
-            <p className='login-portal' onClick={() => setIsUserRegistered((prev) => !prev)}>
-                {isUserRegistered
-                    ? "Don't have an account? Register"
-                    : "Already have an account? Login"}
-            </p>
-        </>
+            <div className='login-text'>
+                {isUserRegistered ? (
+                    <>
+                        <p>Don't have an account?</p>
+                        <span onClick={() => setIsUserRegistered((prev) => !prev)}>Register</span>
+                    </>
+                ) : (
+                    <>
+                        <p>Already have an account?</p>
+                        <span onClick={() => setIsUserRegistered((prev) => !prev)}>Login</span>
+                    </>
+                )}
+            </div>
+        </div>
     );
 };

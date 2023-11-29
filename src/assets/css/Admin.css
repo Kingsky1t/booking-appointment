@@ -1,0 +1,35 @@
+.admin-container {
+    width: 80%;
+    margin-inline: auto;
+    display: flex;
+}
+
+.admin-container div {
+    width: 50%;
+}
+
+.add-teacher-modal {
+    position: absolute;
+    height: 70vh;
+    margin-inline: auto;
+    left: 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-color);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    /* background-color: red; */
+}
+
+.add-teacher-form {
+    width:100%;
+}
+
+/* teacher list css */
+
+
+.teacher-list {
+    padding:2rem;
+    /* background-color: white; */
+}
