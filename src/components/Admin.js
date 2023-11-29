@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { db } from "../Auth/firebase";
 import { collection, deleteDoc, doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import { useLocation, useNavigate } from "react-router-dom";
+import { HandleTeacher } from "./HandleTeacher";
 
 export const Admin = () => {
-    const location = useLocation()
+    const location = useLocation();
     const approvalCollectionRef = collection(db, "approval");
-    const teacherCollectionRef = collection(db, "teacher");
+    // const teacherCollectionRef = collection(db, "teacher");
     const studentCollectionRef = collection(db, "student");
     const userCollectionRef = collection(db, "users");
 
@@ -28,23 +29,17 @@ export const Admin = () => {
     useEffect(() => {
         getApprovalList();
     }, []);
-
+    console.log(approvals)
     const handleApprove = async (item) => {
-        console.log(item)
-        deleteApproval(item.uid);
-        changeUserRole(item.uid, item.role);
-        if (item.role === "teacher") {
-            try {
-                await setDoc(doc(teacherCollectionRef, item.uid), { name: item.name, email: item.email });
-            } catch (err) {
-                console.log(err);
-            }
-        } else if (item.role === "student") {
-            try {
-                await setDoc(doc(studentCollectionRef, item.uid), { name: item.name, email: item.email });
-            } catch (err) {
-                console.error(err);
-            }
+        try {
+            deleteApproval(item.uid);
+            changeUserRole(item.uid, 'student');
+            await setDoc(doc(studentCollectionRef, item.uid), {
+                name: item.name,
+                email: item.email,
+            });
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -73,7 +68,6 @@ export const Admin = () => {
                     {approvals.map((item, idx) => (
                         <li key={idx}>
                             <p>Name: {item.name}</p>
-                            <p>Role: {item.role}</p>
                             <button
                                 onClick={() => {
                                     handleApprove(item);
@@ -90,6 +84,8 @@ export const Admin = () => {
                     ))}
                 </ul>
             </div>
+
+            <HandleTeacher />
         </div>
     );
 };

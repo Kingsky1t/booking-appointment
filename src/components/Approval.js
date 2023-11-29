@@ -8,42 +8,33 @@ export const Approval = () => {
     const approvalCollectionRef = collection(db, "approval");
     const userCollectionRef = collection(db, "users");
 
+    //ui control states
+    const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(true);
+
     // User details
     const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [role, setRole] = useState("");
-    const [loading, setLoading] = useState(true); 
-    const [showForm, setShowForm] = useState(true);
+    const [email, setEmail] = useState("fuck");
 
     const submitApproval = async () => {
         try {
             await setDoc(doc(approvalCollectionRef, currUser), {
                 name,
                 email,
-                role,
             });
             setShowForm(false);
         } catch (err) {
             console.error(err);
         } finally {
             setName("");
-            setRole("");
-        }
-    };
-
-    const getUser = async () => {
-        try {
-            const data = await getDoc(doc(userCollectionRef, currUser));
-            setEmail(data.data().email);
-        } catch (err) {
-            console.error(err);
+            setEmail("");
         }
     };
 
     const getApproval = async () => {
         try {
             const data = await getDoc(doc(approvalCollectionRef, currUser));
-            console.log(data);
+            // console.log(data);
             if (data.exists()) {
                 setShowForm(false);
             } else {
@@ -52,13 +43,25 @@ export const Approval = () => {
         } catch (err) {
             console.error(err);
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
     };
 
+    const fetchEmail = async () => {
+        try {
+            const data = await getDoc(doc(userCollectionRef, currUser));
+            setEmail(data.data().email);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     useEffect(() => {
         getApproval();
-        getUser();
+        if (showForm) {
+            fetchEmail();
+        }
     }, []);
 
     return (
@@ -76,7 +79,7 @@ export const Approval = () => {
                         }}
                         value={name}
                     />
-                    <label htmlFor=''>Role</label>
+                    {/* <label htmlFor=''>Role</label>
                     <select
                         name='role'
                         onChange={(e) => {
@@ -88,7 +91,7 @@ export const Approval = () => {
                         </option>
                         <option value='teacher'>Teacher</option>
                         <option value='student'>Student</option>
-                    </select>
+                    </select> */}
                     <button onClick={submitApproval}>Submit</button>
                 </div>
             ) : (

@@ -14,10 +14,47 @@ export const Login = () => {
 
     const [isUserRegistered, setIsUserRegistered] = useState(true);
 
+    const addToUserDb = async (uid, email) => {
+        await setDoc(doc(userCollectionRef, uid), {
+            email,
+            role: "undecided",
+        });
+    };
+
+    // get data from users db and check role and navigate accordingly
+    const roleNavigate = async (uid) => {
+        try {
+            const userDoc = await getDoc(doc(userCollectionRef, uid));
+            const user = userDoc.data();
+            console.log(userDoc)
+            if (!user) {
+                console.log("User document does not exist.");
+                // navigate('/error');
+                return;
+            }
+
+            const { role } = user;
+
+            if (role === "admin") {
+                navigate("/admin", { state: uid });
+            } else if (role === "teacher") {
+                navigate("/teacher", { state: uid });
+            } else if (role === "student") {
+                navigate("/student", { state: uid });
+            } else {
+                navigate("/approval", { state: uid });
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error.message);
+            //   navigate('/error');
+        }
+    };
+
     const register = async () => {
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, password);
-            addToDatabase(cred.user.uid, cred.user.email);
+            addToUserDb(cred.user.uid, cred.user.email);
+            // console.log(cred)
         } catch (err) {
             console.log(err.code);
         } finally {
@@ -35,27 +72,6 @@ export const Login = () => {
             roleNavigate(cred.user.uid);
         } catch (err) {
             console.error(err.code);
-        }
-    };
-
-    const addToDatabase = async (uid, email) => {
-        await setDoc(doc(userCollectionRef, uid), {
-            role: "undecided",
-            email,
-        });
-    };
-
-    // get data from users db and check role and navigate accordingly
-    const roleNavigate = async (uid) => {
-        const user = (await getDoc(doc(userCollectionRef, uid))).data();
-        if (user.role === "admin") {
-            navigate("/admin", { state: uid });
-        } else if (user.role === "teacher") {
-            navigate("/teacher", { state: uid });
-        } else if (user.role === "student") {
-            navigate("/student", { state: uid });
-        } else {
-            navigate("/approval", { state: uid });
         }
     };
 
